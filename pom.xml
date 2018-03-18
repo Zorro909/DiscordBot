@@ -84,7 +84,7 @@
 					<archive>
 						<manifest>
 							<!-- <addClasspath>true</addClasspath> -->
-							<mainClass>twaren.elk.elkMaven.App</mainClass>
+							<mainClass>de.DiscordBot.DiscordBot</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
@@ -103,7 +103,7 @@
 					<archive>
 						<manifest>
 							<!-- <addClasspath>true</addClasspath> -->
-							<mainClass>twaren.elk.elkMaven.App</mainClass>
+							<mainClass>de.DiscordBot.DiscordBot</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>
