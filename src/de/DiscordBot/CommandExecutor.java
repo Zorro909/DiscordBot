@@ -12,6 +12,7 @@ import de.DiscordBot.Commands.DeviantArtSearch;
 import de.DiscordBot.Commands.DiscordCommand;
 import de.DiscordBot.Commands.GraphCommand;
 import de.DiscordBot.Commands.HangmanCommand;
+import de.DiscordBot.Commands.LotusCommand;
 import de.DiscordBot.Commands.OsuProfile;
 import de.DiscordBot.Commands.RandomJoke;
 import de.DiscordBot.Commands.RandomMeme;
@@ -115,6 +116,8 @@ public class CommandExecutor implements Runnable {
 		addCommand(new HangmanCommand(jda));
 		addCommand(new GraphCommand());
 		addCommand(new ReminderCommand());
+		
+		addCommand(new LotusCommand());
 	}
 
 	private void addCommand(DiscordCommand cmd) {
