@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.UUID;
 
@@ -14,7 +15,9 @@ import de.DiscordBot.DiscordBot;
 import de.DiscordBot.Config.Config;
 import de.DiscordBot.Config.ConfigPage;
 import de.DiscordBot.Config.ConfigurableOption;
+import javautils.mysql.Entry;
 import javautils.mysql.MySQLConfiguration;
+import net.dean.jraw.models.attr.Gildable;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Guild;
@@ -60,6 +63,7 @@ public class ReminderCommand extends DiscordCommand {
 											.getString("VALUE");
 									boolean secure = co.get("remind", "VALUE", "OPTIONGUILD", "secure" + option)
 											.getString("VALUE").equals("true");
+									co.getConnection().createStatement().execute("DELETE from remind where `OPTIONGUILD` LIKE '%" + option + "'");
 									JDA jda = DiscordBot.getBot();
 									User target = jda.getUserById(Long.valueOf(user));
 									MessageBuilder mb = new MessageBuilder();
@@ -103,6 +107,7 @@ public class ReminderCommand extends DiscordCommand {
 		if (command.equalsIgnoreCase("secureremind")) {
 			secure = true;
 		}
+		try {
 		User target = null;
 		Calendar cal = Calendar.getInstance();
 		String t = "";
@@ -122,7 +127,7 @@ public class ReminderCommand extends DiscordCommand {
 			}
 			mes = mes.substring(1);
 		}
-		int amount = Integer.valueOf(t.substring(0, t.length() - 2));
+		int amount = Integer.valueOf(t.substring(0, t.length() - 1));
 		switch (t.charAt(t.length() - 1)) {
 		case 'S':
 		case 's':
@@ -151,21 +156,48 @@ public class ReminderCommand extends DiscordCommand {
 			cal.add(Calendar.YEAR, amount);
 			break;
 		default:
-			return "The time descriptor: '" + t.charAt(t.length() - 1) + "' isn't recognized!";
+			return new MessageBuilder().append("The time descriptor: '" + t.charAt(t.length() - 1) + "' isn't recognized!").build();
 		}
 		Config g = getConfig(m.getGuild());
 		Timestamp when = new Timestamp(cal.getTimeInMillis());
 		String id = UUID.randomUUID().toString();
-		g.setValue(id, when.toString());
-		g.setValue("message" + id, mes);
-		g.setValue("secure" + id, secure);
-		g.setValue("user" + id, target.getIdLong() + "");
-		g.setValue("channel" + id, m.getTextChannel().getIdLong() + "");
+		MySQLConfiguration sql = DiscordBot.mysql;
+		Entry e = new Entry("remind");
+		HashMap<String,String> keyValues = new HashMap<String,String>();
+		keyValues.put("OPTIONGUILD",id);
+		keyValues.put("VALUE", when.toString());
+		keyValues.put("GUILD", m.getGuild().getIdLong() + "");
+		e.setValues(keyValues);
+		sql.updateEntry(e);
+		e = new Entry("remind");
+		keyValues.put("OPTIONGUILD", "message"+id);
+		keyValues.put("VALUE", mes);
+		e.setValues(keyValues);
+		sql.updateEntry(e);
+		e = new Entry("remind");
+		keyValues.put("OPTIONGUILD", "secure"+id);
+		keyValues.put("VALUE", secure ? "true" : "false");
+		e.setValues(keyValues);
+		sql.updateEntry(e);
+		e = new Entry("remind");
+		keyValues.put("OPTIONGUILD", "user"+id);
+		keyValues.put("VALUE", target.getIdLong() + "");
+		e.setValues(keyValues);
+		sql.updateEntry(e);
+		e = new Entry("remind");
+		keyValues.put("OPTIONGUILD", "channel"+id);
+		keyValues.put("VALUE", m.getTextChannel().getIdLong() + "");
+		e.setValues(keyValues);
+		sql.updateEntry(e);
 		if (secure) {
 			m.delete().submit();
-			return "You will be reminded securely, when it's time :D";
+			return new MessageBuilder().append("You will be reminded securely, when it's time :D").build();
 		} else {
-			return "You will be reminded here, when it's time :D";
+			return new MessageBuilder().append("You will be reminded here, when it's time :D").build();
+		}
+		}catch(Exception e) {
+			e.printStackTrace();
+			return new MessageBuilder().append(getUsage()).build();
 		}
 	}
 
