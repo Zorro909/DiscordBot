@@ -37,6 +37,7 @@ public class ChatLogCommand extends DiscordCommand {
 			for (ChatLogChannel clc : cl.listChannels(m.getGuild()).values()) {
 				for(ChatLogMessage clm : clc.clm) {
 					if(encounter.containsKey(clm.content)) {
+						if(clm.content.isEmpty())continue;
 						encounter.put(clm.content, encounter.get(clm.content)+1);
 						if(most<encounter.get(clm.content)) {
 							most = encounter.get(clm.content);
@@ -47,7 +48,7 @@ public class ChatLogCommand extends DiscordCommand {
 					}
 				}
 			}
-			eb.addField(new Field("Most sent Message (" + most + "):", me + "", true));		
+			eb.addField(new Field("Most sent Message (" + most + "):", me + "", false));		
 			return eb.build();
 		}
 		
