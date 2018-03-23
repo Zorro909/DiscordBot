@@ -32,7 +32,7 @@ public class ChatLogCommand extends DiscordCommand {
 			eb.setTitle("Chatlog Stats");
 			eb.addField(new Field("Total Messages captured", cl.countMessages(m.getGuild()) + "", true));
 			HashMap<String, Integer> encounter = new HashMap<String, Integer>();
-			int most = 0;
+			long most = 0;
 			String me = "";
 			for (ChatLogChannel clc : cl.listChannels(m.getGuild()).values()) {
 				for(ChatLogMessage clm : clc.clm) {
@@ -47,7 +47,7 @@ public class ChatLogCommand extends DiscordCommand {
 					}
 				}
 			}
-			eb.addField(new Field("Most sent Message (" + most + "):", me.substring(0,20), false));		
+			eb.addField(new Field("Most sent Message (" + most + "):", me + "", true));		
 			return eb.build();
 		}
 		
