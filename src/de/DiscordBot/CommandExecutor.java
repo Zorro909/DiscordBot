@@ -7,6 +7,7 @@ import java.util.List;
 
 import de.DiscordBot.ChatLog.ChatLog;
 import de.DiscordBot.Commands.BeardAvatar;
+import de.DiscordBot.Commands.ChatLogCommand;
 import de.DiscordBot.Commands.ChuckNorrisJoke;
 import de.DiscordBot.Commands.DeviantArtSearch;
 import de.DiscordBot.Commands.DiscordCommand;
@@ -116,7 +117,7 @@ public class CommandExecutor implements Runnable {
 		addCommand(new HangmanCommand(jda));
 		addCommand(new GraphCommand());
 		addCommand(new ReminderCommand());
-		
+		addCommand(new ChatLogCommand());
 		addCommand(new LotusCommand());
 	}
 
