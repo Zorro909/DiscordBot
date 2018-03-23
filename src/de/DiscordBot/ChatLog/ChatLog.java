@@ -67,5 +67,15 @@ public class ChatLog {
     return ch;
   }
 
+public long countMessages() {
+	long count = 0;
+	for(HashMap<String, ChatLogChannel> h : guildChannels.values()) {
+		for(ChatLogChannel clc : h.values()) {
+			count+=clc.clm.size();
+		}
+	}
+	return count;
+}
+
 
 }
