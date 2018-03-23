@@ -25,7 +25,7 @@ public class ChatLogCommand extends DiscordCommand {
 			EmbedBuilder eb = new EmbedBuilder();
 			eb.setTitle("Chatlog Stats");
 			eb.addField(new Field("Messages in RAM", CommandExecutor.getChatLog().countMessages() + "", true));
-			return eb;
+			return eb.build();
 		}
 		
 		return null;
