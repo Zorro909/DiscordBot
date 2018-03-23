@@ -47,7 +47,7 @@ public class ChatLogCommand extends DiscordCommand {
 					}
 				}
 			}
-			eb.addField(new Field("Most sent Message:", me, false));		
+			eb.addField(new Field("Most sent Message (" + most + "):", me, false));		
 			return eb.build();
 		}
 		

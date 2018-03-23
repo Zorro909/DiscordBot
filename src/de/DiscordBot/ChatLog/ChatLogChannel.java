@@ -59,6 +59,7 @@ public class ChatLogChannel {
 
   public void load() {
     try {
+      clm.clear();
       BufferedReader br = new BufferedReader(new FileReader(log));
       String line = "";
       while((line=br.readLine())!=null) {
