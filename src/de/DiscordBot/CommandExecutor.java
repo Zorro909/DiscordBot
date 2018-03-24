@@ -114,7 +114,7 @@ public class CommandExecutor implements Runnable {
 		if(new File("plugins").exists()) {
 			for(File f : new File("plugins").listFiles()) {
 				if(f.getPath().endsWith(".jar")) {
-					jcl.add(f);
+					jcl.add(f.getAbsolutePath());
 				}
 			}
 		} else {
