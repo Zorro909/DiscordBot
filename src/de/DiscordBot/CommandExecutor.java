@@ -1,8 +1,13 @@
 package de.DiscordBot;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -107,29 +112,46 @@ public class CommandExecutor implements Runnable {
 		help = msb.build();
 	}
 
+	static URLClassLoader loader;
+	
 	public static void refresh() {
 		commands.clear();
 		cList.clear();
 		gameChannels.clear();
 		gameList.clear();
+		if(loader!=null) {
+			try {
+				loader.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			loader = null;
+		}
 		System.gc();
-		JarClassLoader jcl = new JarClassLoader();
+		ArrayList<URL> urls = new ArrayList<URL>();
 		if(new File("plugins").exists()) {
 			for(File f : new File("plugins").listFiles()) {
 				if(f.getPath().endsWith(".jar")) {
-					jcl.add(f.getAbsolutePath());
+					try {
+						urls.add(f.toURL());
+					} catch (MalformedURLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 			}
 		} else {
 			new File("plugins").mkdir();
 		}
-		ServiceLoader<DiscordCommand> commandService = ServiceLoader.load(DiscordCommand.class, jcl);
+		loader = new URLClassLoader(urls.toArray(new URL[] {}));
+		ServiceLoader<DiscordCommand> commandService = ServiceLoader.load(DiscordCommand.class, loader);
 		Iterator<DiscordCommand> i = commandService.iterator();
 		while(i.hasNext()) {
 			addCommand(i.next());
 		}
 		System.out.println("Loaded " + cList.size() + " Commands");
-		ServiceLoader<DiscordGame> gameService = ServiceLoader.load(DiscordGame.class, jcl);
+		ServiceLoader<DiscordGame> gameService = ServiceLoader.load(DiscordGame.class, loader);
 		Iterator<DiscordGame> g = gameService.iterator();
 		while(g.hasNext()) {
 			addGame(g.next());
