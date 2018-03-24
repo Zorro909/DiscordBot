@@ -150,7 +150,7 @@ public class DiscordBot extends ListenerAdapter {
 
     // Initialise The Executor Service
     exec = Executors.newFixedThreadPool(threadCount);
-
+    CommandExecutor.refresh();
     String input = "";
     BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     while((input=br.readLine())!=null) {
