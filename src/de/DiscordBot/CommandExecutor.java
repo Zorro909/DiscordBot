@@ -14,9 +14,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ServiceLoader;
 
-import org.xeustechnologies.jcl.JarClassLoader;
-import org.xeustechnologies.jcl.JclUtils;
-
 import de.DiscordBot.ChatLog.ChatLog;
 import de.DiscordBot.Commands.DiscordCommand;
 import de.DiscordBot.Config.RemoteConfigurator;
