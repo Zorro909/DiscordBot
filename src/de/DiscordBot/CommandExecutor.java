@@ -1,28 +1,21 @@
 package de.DiscordBot;
 
+import java.io.File;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ServiceLoader;
+
+import org.xeustechnologies.jcl.JarClassLoader;
+import org.xeustechnologies.jcl.JclUtils;
 
 import de.DiscordBot.ChatLog.ChatLog;
-import de.DiscordBot.Commands.BeardAvatar;
-import de.DiscordBot.Commands.ChatLogCommand;
-import de.DiscordBot.Commands.ChuckNorrisJoke;
-import de.DiscordBot.Commands.DeviantArtSearch;
 import de.DiscordBot.Commands.DiscordCommand;
-import de.DiscordBot.Commands.GraphCommand;
-import de.DiscordBot.Commands.HangmanCommand;
-import de.DiscordBot.Commands.LotusCommand;
-import de.DiscordBot.Commands.OsuProfile;
-import de.DiscordBot.Commands.RandomJoke;
-import de.DiscordBot.Commands.RandomMeme;
-import de.DiscordBot.Commands.ReminderCommand;
-import de.DiscordBot.Commands.TranslateCommand;
-import de.DiscordBot.Commands.UrbanDict;
-import de.DiscordBot.Commands.Waifu2X;
-import de.DiscordBot.Commands.WikiBot;
 import de.DiscordBot.Config.RemoteConfigurator;
+import de.DiscordBot.Game.DiscordGame;
 import javautils.mysql.DATA_TYPE;
 import javautils.mysql.MySQLConfiguration;
 import javautils.mysql.Table;
@@ -41,7 +34,10 @@ public class CommandExecutor implements Runnable {
 	private static ChatLog cl;
 	static HashMap<String, Guild> guilds = new HashMap<String, Guild>();
 	static HashMap<String, MessageChannel> channel = new HashMap<String, MessageChannel>();
-
+	
+	static HashMap<String, DiscordGame> gameList = new HashMap<String, DiscordGame>();
+	public static HashMap<String, DiscordGame> gameChannels = new HashMap<String, DiscordGame>();
+	
 	static HashMap<String, DiscordCommand> commands = new HashMap<String, DiscordCommand>();
 	static LinkedList<DiscordCommand> cList = new LinkedList<DiscordCommand>();
 	static Message help;
@@ -56,7 +52,8 @@ public class CommandExecutor implements Runnable {
 		this.event = event;
 
 		if (!setUp) {
-			addCommands(event.getJDA());
+			setUpMySQL();
+			refresh();
 			generateHelp();
 			setUp = true;
 			new Thread(new Runnable() {
@@ -79,7 +76,14 @@ public class CommandExecutor implements Runnable {
 			}).start();
 		}
 
-		//rc = new RemoteConfigurator();
+		// rc = new RemoteConfigurator();
+	}
+
+	private void setUpMySQL() {
+		Table games = new Table("games");
+		games.addColumn("NAME", DATA_TYPE.VARCHAR, true, false, true, true);
+		games.addColumn("Channels", DATA_TYPE.LARGETEXT, true, false, false, false);
+		DiscordBot.mysql.createTable(games);
 	}
 
 	private void generateHelp() {
@@ -103,25 +107,50 @@ public class CommandExecutor implements Runnable {
 		help = msb.build();
 	}
 
-	private void addCommands(JDA jda) {
-		addCommand(new TranslateCommand());
-		addCommand(new BeardAvatar());
-		addCommand(new ChuckNorrisJoke());
-		addCommand(new DeviantArtSearch());
-		addCommand(new OsuProfile());
-		addCommand(new RandomJoke());
-		addCommand(new RandomMeme());
-		addCommand(new UrbanDict());
-		addCommand(new Waifu2X());
-		addCommand(new WikiBot());
-		addCommand(new HangmanCommand(jda));
-		addCommand(new GraphCommand());
-		addCommand(new ReminderCommand());
-		addCommand(new ChatLogCommand());
-		addCommand(new LotusCommand());
+	public static void refresh() {
+		commands.clear();
+		cList.clear();
+		JarClassLoader jcl = new JarClassLoader();
+		if(new File("plugins").exists()) {
+			for(File f : new File("plugins").listFiles()) {
+				if(f.getPath().endsWith(".jar")) {
+					jcl.add(f);
+				}
+			}
+		} else {
+			new File("plugins").mkdir();
+		}
+		ServiceLoader<DiscordCommand> commandService = ServiceLoader.load(DiscordCommand.class, jcl);
+		Iterator<DiscordCommand> i = commandService.iterator();
+		while(i.hasNext()) {
+			addCommand(i.next());
+		}
+		
+		ServiceLoader<DiscordGame> gameService = ServiceLoader.load(DiscordGame.class, jcl);
+		Iterator<DiscordGame> g = gameService.iterator();
+		while(g.hasNext()) {
+			addGame(g.next());
+		}
 	}
 
-	private void addCommand(DiscordCommand cmd) {
+	private static void addGame(DiscordGame game) {
+		String name = game.getName();
+		gameList.put(name, game);
+		try {
+			ResultSet rs = DiscordBot.mysql.get("games", "CHANNELS", "NAME", name.toLowerCase());
+			if(rs.first()) {
+				String ch = rs.getString("CHANNELS");
+				for(String s : ch.split(";")) {
+					gameChannels.put(s, game);
+				}
+			}
+		} catch (SQLException | InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private static void addCommand(DiscordCommand cmd) {
 		commands.put(cmd.getCommandName().toLowerCase(), cmd);
 		for (String s : cmd.getCommandAliases()) {
 			commands.put(s.toLowerCase(), cmd);
@@ -147,10 +176,6 @@ public class CommandExecutor implements Runnable {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
-
-		if (cmd.isRemoteConfigurable()) {
-
 		}
 	}
 
@@ -198,6 +223,10 @@ public class CommandExecutor implements Runnable {
 			}
 		} else if (event.isFromType(ChannelType.TEXT)) {
 			Message incoming = event.getMessage();
+			if(gameChannels.containsKey(incoming.getTextChannel().getId())) {
+				gameChannels.get(incoming.getTextChannel().getId()).receiveMessage(incoming, DiscordBot.mysql);
+				return;
+			}
 			if (incoming.getContent().startsWith("\\")) {
 				String command = incoming.getContent().split(" ", 2)[0].substring(1);
 				String[] args = new String[0];

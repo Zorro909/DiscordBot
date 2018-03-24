@@ -1,8 +1,11 @@
 package de.DiscordBot;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.security.GeneralSecurityException;
 import java.util.Date;
@@ -148,6 +151,13 @@ public class DiscordBot extends ListenerAdapter {
     // Initialise The Executor Service
     exec = Executors.newFixedThreadPool(threadCount);
 
+    String input = "";
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    while((input=br.readLine())!=null) {
+    	if(input.trim().equalsIgnoreCase("/reload")) {
+    		CommandExecutor.refresh();
+    	}
+    }
   }
 
   /**
