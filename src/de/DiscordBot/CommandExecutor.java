@@ -125,12 +125,13 @@ public class CommandExecutor implements Runnable {
 		while(i.hasNext()) {
 			addCommand(i.next());
 		}
-		
+		System.out.println("Loaded " + cList.size() + " Commands");
 		ServiceLoader<DiscordGame> gameService = ServiceLoader.load(DiscordGame.class, jcl);
 		Iterator<DiscordGame> g = gameService.iterator();
 		while(g.hasNext()) {
 			addGame(g.next());
 		}
+		System.out.println("Loaded " + gameList.size() + " Games");
 	}
 
 	private static void addGame(DiscordGame game) {
