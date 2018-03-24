@@ -110,6 +110,9 @@ public class CommandExecutor implements Runnable {
 	public static void refresh() {
 		commands.clear();
 		cList.clear();
+		gameChannels.clear();
+		gameList.clear();
+		System.gc();
 		JarClassLoader jcl = new JarClassLoader();
 		if(new File("plugins").exists()) {
 			for(File f : new File("plugins").listFiles()) {
