@@ -38,7 +38,7 @@ public abstract class DiscordGame {
 		}
 		MySQLConfiguration sql = DiscordBot.mysql;
 		Entry e = new Entry("games");
-		String ch = name + ";";
+		String ch = tc.getId() + ";";
 		try {
 			ch += sql.get("games", "CHANNELS", "NAME", name.toLowerCase()).getString("CHANNELS");
 		} catch (Exception e2) {
