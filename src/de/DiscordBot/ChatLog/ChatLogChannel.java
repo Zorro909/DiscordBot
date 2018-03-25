@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Comparator;
 import java.util.LinkedList;
 
 
@@ -78,6 +79,20 @@ public class ChatLogChannel {
           }
           clm.add(new ChatLogMessage(new String(Base64.getDecoder().decode(args[0]),"UTF-8"), Long.valueOf(args[2]), Boolean.valueOf(args[1]), (args.length > 3 ? new String(Base64.getDecoder().decode(args[3].replace("\\\\\\\\double////", ":")),"UTF-8") : ""), ment));
       }
+      clm.sort(new Comparator<ChatLogMessage>() {
+
+		@Override
+		public int compare(ChatLogMessage arg0, ChatLogMessage arg1) {
+			if(arg0.time==arg1.time) {
+				return 0;
+			}
+			if(arg0.time < arg1.time) {
+				return -1;
+			}else {
+				return 1;
+			}
+		}
+      });
       br.close();
     } catch (FileNotFoundException e) {
       // TODO Auto-generated catch block

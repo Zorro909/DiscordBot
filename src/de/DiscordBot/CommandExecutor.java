@@ -55,7 +55,6 @@ public class CommandExecutor implements Runnable {
 
 		if (!setUp) {
 			setUpMySQL();
-			refresh();
 			generateHelp();
 			setUp = true;
 			new Thread(new Runnable() {
@@ -267,13 +266,13 @@ public class CommandExecutor implements Runnable {
 						try {
 							ret = dc.execute(command, args, incoming);
 						} catch (Exception e) {
-							e.printStackTrace();
-						}
-						if (ret == null) {
 							incoming.getChannel().sendMessage(
 									"Your Command generated an Error, please contact the Developer! @Zorro909#1972")
 									.submit();
-						} else if (ret instanceof Integer) {
+							e.printStackTrace();
+							return;
+						}
+						if (ret instanceof Integer) {
 							incoming.getChannel().sendMessage("Your Command generated an Error with the Code " + ret
 									+ ", please contact the Developer! @Zorro909#1972");
 						} else if (ret instanceof Message) {
