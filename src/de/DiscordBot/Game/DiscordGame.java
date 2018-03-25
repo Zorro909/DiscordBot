@@ -51,6 +51,7 @@ public abstract class DiscordGame {
 		if (!sql.updateEntry(e)) {
 			return false;
 		}
+		setupGameConfig(tc.getGuild(), tc, sql);
 		CommandExecutor.gameChannels.put(tc.getId(), this);
 		return true;
 	}
