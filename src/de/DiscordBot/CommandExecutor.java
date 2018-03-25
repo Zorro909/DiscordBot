@@ -160,10 +160,13 @@ public class CommandExecutor implements Runnable {
 		gameList.put(name, game);
 		try {
 			ResultSet rs = DiscordBot.mysql.get("games", "CHANNELS", "NAME", name.toLowerCase());
+			
 			if(rs.first()) {
+				JDA j = DiscordBot.getBot();
 				String ch = rs.getString("CHANNELS");
 				for(String s : ch.split(";")) {
 					gameChannels.put(s, game);
+					game.loadGameConfig(j.getTextChannelById(s).getGuild(), j.getTextChannelById(s), DiscordBot.mysql);
 				}
 			}
 		} catch (SQLException | InterruptedException e) {

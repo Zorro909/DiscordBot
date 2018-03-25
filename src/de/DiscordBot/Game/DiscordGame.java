@@ -24,7 +24,7 @@ public abstract class DiscordGame {
 		return name;
 	}
 
-	protected abstract void loadGameConfig(Guild g, TextChannel tc, MySQLConfiguration sql);
+	public abstract void loadGameConfig(Guild g, TextChannel tc, MySQLConfiguration sql);
 
 	protected abstract void setupGameConfig(Guild g, TextChannel tc, MySQLConfiguration sql);
 	
