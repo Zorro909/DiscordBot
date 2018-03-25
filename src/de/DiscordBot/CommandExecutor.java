@@ -36,10 +36,10 @@ public class CommandExecutor implements Runnable {
 	private static ChatLog cl;
 	static HashMap<String, Guild> guilds = new HashMap<String, Guild>();
 	static HashMap<String, MessageChannel> channel = new HashMap<String, MessageChannel>();
-	
+
 	static HashMap<String, DiscordGame> gameList = new HashMap<String, DiscordGame>();
 	public static HashMap<String, DiscordGame> gameChannels = new HashMap<String, DiscordGame>();
-	
+
 	static HashMap<String, DiscordCommand> commands = new HashMap<String, DiscordCommand>();
 	static LinkedList<DiscordCommand> cList = new LinkedList<DiscordCommand>();
 	static Message help;
@@ -109,13 +109,13 @@ public class CommandExecutor implements Runnable {
 	}
 
 	static URLClassLoader loader;
-	
+
 	public static void refresh() {
 		commands.clear();
 		cList.clear();
 		gameChannels.clear();
 		gameList.clear();
-		if(loader!=null) {
+		if (loader != null) {
 			try {
 				loader.close();
 			} catch (IOException e) {
@@ -126,9 +126,9 @@ public class CommandExecutor implements Runnable {
 		}
 		System.gc();
 		ArrayList<URL> urls = new ArrayList<URL>();
-		if(new File("plugins").exists()) {
-			for(File f : new File("plugins").listFiles()) {
-				if(f.getPath().endsWith(".jar")) {
+		if (new File("plugins").exists()) {
+			for (File f : new File("plugins").listFiles()) {
+				if (f.getPath().endsWith(".jar")) {
 					try {
 						urls.add(f.toURL());
 					} catch (MalformedURLException e) {
@@ -143,13 +143,13 @@ public class CommandExecutor implements Runnable {
 		loader = new URLClassLoader(urls.toArray(new URL[] {}));
 		ServiceLoader<DiscordCommand> commandService = ServiceLoader.load(DiscordCommand.class, loader);
 		Iterator<DiscordCommand> i = commandService.iterator();
-		while(i.hasNext()) {
+		while (i.hasNext()) {
 			addCommand(i.next());
 		}
 		System.out.println("Loaded " + cList.size() + " Commands");
 		ServiceLoader<DiscordGame> gameService = ServiceLoader.load(DiscordGame.class, loader);
 		Iterator<DiscordGame> g = gameService.iterator();
-		while(g.hasNext()) {
+		while (g.hasNext()) {
 			addGame(g.next());
 		}
 		System.out.println("Loaded " + gameList.size() + " Games");
@@ -160,11 +160,11 @@ public class CommandExecutor implements Runnable {
 		gameList.put(name, game);
 		try {
 			ResultSet rs = DiscordBot.mysql.get("games", "CHANNELS", "NAME", name.toLowerCase());
-			
-			if(rs.first()) {
+
+			if (rs.first()) {
 				JDA j = DiscordBot.getBot();
 				String ch = rs.getString("CHANNELS");
-				for(String s : ch.split(";")) {
+				for (String s : ch.split(";")) {
 					gameChannels.put(s, game);
 					game.loadGameConfig(j.getTextChannelById(s).getGuild(), j.getTextChannelById(s), DiscordBot.mysql);
 				}
@@ -248,9 +248,10 @@ public class CommandExecutor implements Runnable {
 			}
 		} else if (event.isFromType(ChannelType.TEXT)) {
 			Message incoming = event.getMessage();
-			if(gameChannels.containsKey(incoming.getTextChannel().getId())) {
-				gameChannels.get(incoming.getTextChannel().getId()).receiveMessage(incoming, DiscordBot.mysql);
-				return;
+			if (gameChannels.containsKey(incoming.getTextChannel().getId())) {
+				if (gameChannels.get(incoming.getTextChannel().getId()).receiveMessage(incoming, DiscordBot.mysql)) {
+					return;
+				}
 			}
 			if (incoming.getContent().startsWith("\\")) {
 				String command = incoming.getContent().split(" ", 2)[0].substring(1);

@@ -30,7 +30,7 @@ public abstract class DiscordGame {
 	
 	protected abstract void deleteGameConfig(Guild g, TextChannel tc, MySQLConfiguration sql);
 	
-	public abstract void receiveMessage(Message m, MySQLConfiguration sql);
+	public abstract boolean receiveMessage(Message m, MySQLConfiguration sql);
 
 	public boolean registerGameChannel(TextChannel tc) {
 		if (CommandExecutor.gameChannels.containsKey(tc.getId())) {
