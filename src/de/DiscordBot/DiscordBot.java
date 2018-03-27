@@ -82,7 +82,7 @@ public class DiscordBot extends ListenerAdapter {
 
     try {
       bot = new JDABuilder(AccountType.BOT)
-              .setToken(discordToken).setAudioEnabled(false).addEventListener(new DiscordBot())
+              .setToken(discordToken).setAudioEnabled(true).addEventListener(new DiscordBot())
               .buildBlocking();
     } catch (
             LoginException
