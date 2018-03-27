@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
@@ -29,6 +30,7 @@ import com.google.gson.Gson;
 import de.DiscordBot.ChatLog.ChatLog;
 import de.DiscordBot.ChatLog.ChatLogChannel;
 import de.DiscordBot.ChatLog.ChatLogMessage;
+import de.DiscordBot.Commands.DiscordService;
 import javautils.UtilHelpers.Cleanable;
 import javautils.mysql.MySQLConfiguration;
 import net.dv8tion.jda.core.AccountType;
@@ -158,6 +160,20 @@ public class DiscordBot extends ListenerAdapter {
     		CommandExecutor.refresh();
     	}
     }
+  }
+  
+  static ArrayList<DiscordService> services = new ArrayList<DiscordService>();
+  
+  public static void startService(DiscordService service) {
+	  services.add(service);
+	  new Thread(service).start();
+  }
+  
+  public static void stopServices() {
+	  for(DiscordService ds : services) {
+		  ds.shutdown();
+	  }
+	  services.clear();
   }
 
   /**

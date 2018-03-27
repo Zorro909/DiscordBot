@@ -115,6 +115,7 @@ public class CommandExecutor implements Runnable {
 		cList.clear();
 		gameChannels.clear();
 		gameList.clear();
+		DiscordBot.stopServices();
 		if (loader != null) {
 			try {
 				loader.close();
