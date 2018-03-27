@@ -26,6 +26,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import com.google.gson.Gson;
+import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 
 import de.DiscordBot.ChatLog.ChatLog;
 import de.DiscordBot.ChatLog.ChatLogChannel;
@@ -86,7 +87,7 @@ public class DiscordBot extends ListenerAdapter {
 		discordToken = cmd.getOptionValue("dT");
 
 		try {
-			bot = new JDABuilder(AccountType.BOT).setToken(discordToken).setAudioEnabled(true)
+			bot = new JDABuilder(AccountType.BOT).setToken(discordToken).setAudioEnabled(true).setAudioSendFactory(new NativeAudioSendFactory())
 					.addEventListener(new DiscordBot()).buildBlocking();
 		} catch (LoginException | IllegalArgumentException | InterruptedException | RateLimitedException e1) {
 			// TODO Auto-generated catch block
