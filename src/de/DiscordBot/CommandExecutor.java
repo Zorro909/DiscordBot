@@ -302,6 +302,7 @@ public class CommandExecutor implements Runnable {
 									"Your Command generated an Error, please contact the Developer! @Zorro909#1972")
 									.submit();
 							e.printStackTrace();
+							sendTypingChannels.remove(time);
 							return;
 						}
 						if (ret instanceof Integer) {
