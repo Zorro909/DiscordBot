@@ -21,6 +21,7 @@ import de.DiscordBot.Game.DiscordGame;
 import javautils.mysql.DATA_TYPE;
 import javautils.mysql.MySQLConfiguration;
 import javautils.mysql.Table;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.ChannelType;
@@ -28,6 +29,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.MessageEmbed;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class CommandExecutor implements Runnable {
@@ -42,7 +44,6 @@ public class CommandExecutor implements Runnable {
 
 	static HashMap<String, DiscordCommand> commands = new HashMap<String, DiscordCommand>();
 	static LinkedList<DiscordCommand> cList = new LinkedList<DiscordCommand>();
-	static Message help;
 
 	private static volatile HashMap<Long, MessageChannel> sendTypingChannels = new HashMap<Long, MessageChannel>();
 
@@ -55,7 +56,6 @@ public class CommandExecutor implements Runnable {
 
 		if (!setUp) {
 			setUpMySQL();
-			generateHelp();
 			setUp = true;
 			new Thread(new Runnable() {
 
@@ -87,25 +87,48 @@ public class CommandExecutor implements Runnable {
 		DiscordBot.mysql.createTable(games);
 	}
 
-	private void generateHelp() {
-		MessageBuilder msb = new MessageBuilder();
-		msb.append("Help for LewdBot:\n");
-		for (DiscordCommand cmd : cList) {
-			msb.append("  \\" + cmd.getCommandName() + ": " + cmd.getDescription() + "\n   " + cmd.getUsage() + "\n");
-			if (cmd.getCommandAliases().length > 0) {
-				msb.append("  Aliases: ");
-				int aliases = 0;
-				for (String s : cmd.getCommandAliases()) {
-					if (aliases == 3) {
-						break;
-					}
-					msb.append("\\" + s + " ");
-					aliases++;
-				}
-				msb.append("\n");
+	private void sendHelp(TextChannel textChannel, String join) {
+		for(String s : commands.keySet()) {
+			if(s.toLowerCase().contains(join.toLowerCase())) {
+				DiscordCommand dc = commands.get(s);
+				EmbedBuilder msb = new EmbedBuilder();
+				msb.setTitle("Help for " + s + ":\n");
+				msb.setAuthor("Alia");
+				msb.addField("Description", dc.getDescription(), false);
+				msb.addField("Usage", dc.getUsage(), false);
+				msb.addField("Aliases", String.join(", ", dc.getCommandAliases()), false);
+				textChannel.sendMessage(msb.build()).queue();
+				return;
 			}
 		}
-		help = msb.build();
+		textChannel.sendMessage("Sorry, the command " + join + " could not be found...").queue();
+	}
+
+	private void sendHelp(TextChannel chan) {
+		EmbedBuilder msb = new EmbedBuilder();
+		msb.setTitle("Help for LewdBot:\n");
+		msb.setAuthor("Alia");
+		int commands = 0;
+		int page = 1;
+		StringBuilder current = new StringBuilder();
+		for (DiscordCommand cmd : cList) {
+			current.append("\\" + cmd.getCommandName() + ": " + cmd.getDescription() + "\n");
+			commands++;
+			if (commands == 10) {
+				msb.addField("Page " + page, current.toString(), true);
+				chan.sendMessage(msb.build()).queue();
+				commands = 0;
+				page++;
+				current = new StringBuilder();
+				msb = new EmbedBuilder();
+				msb.setTitle("Help for LewdBot:\n");
+				msb.setAuthor("Alia");
+			}
+		}
+		if (commands > 0) {
+			msb.addField("Page " + page, current.toString(), true);
+			chan.sendMessage(msb.build()).queue();
+		}
 	}
 
 	static URLClassLoader loader;
@@ -261,7 +284,11 @@ public class CommandExecutor implements Runnable {
 					args = incoming.getContent().substring(2 + command.length()).split(" ");
 				}
 				if (command.equalsIgnoreCase("help")) {
-					event.getChannel().sendMessage(help).submit();
+					if (args.length != 0) {
+						sendHelp(event.getTextChannel(), String.join("", args));
+					} else {
+						sendHelp(event.getTextChannel());
+					}
 				} else {
 					if (commands.containsKey(command.toLowerCase())) {
 						long time = System.currentTimeMillis();
