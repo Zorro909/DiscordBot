@@ -299,14 +299,14 @@ public class CommandExecutor implements Runnable {
 							ret = dc.execute(command, args, incoming);
 						} catch (Exception e) {
 							incoming.getChannel().sendMessage(
-									"Your Command generated an Error, please contact the Developer! @Zorro909#1972")
+									"Your Command generated an Errawr, please contact the Developer! @Zorro909#1972")
 									.submit();
 							e.printStackTrace();
 							sendTypingChannels.remove(time);
 							return;
 						}
 						if (ret instanceof Integer) {
-							incoming.getChannel().sendMessage("Your Command generated an Error with the Code " + ret
+							incoming.getChannel().sendMessage("Your Command generated an Errawr with the Code " + ret
 									+ ", please contact the Developer! @Zorro909#1972");
 						} else if (ret instanceof Message) {
 							incoming.getChannel().sendMessage(((Message) (ret))).submit();
