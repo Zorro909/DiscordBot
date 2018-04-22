@@ -59,5 +59,12 @@ public abstract class DiscordCommand {
     }
     return conf.get(g.getIdLong());
   }
+  
+  public Config getGlobalConfig() {
+	  if(!conf.containsKey(null)) {
+		  conf.put(null, new Config(cmdName, null, this));
+	  }
+	  return conf.get(null);
+  }
 
 }
