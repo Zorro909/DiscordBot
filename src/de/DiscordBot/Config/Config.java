@@ -52,8 +52,8 @@ public class Config {
 	public void setValue(String option, String value) {
 		option = option.toLowerCase();
 		try {
-			conf.update(cmdName, new String[] { "VALUE", value },
-					new String[] { "GUILD", gID + "", "OPTIONGUILD", option + gID });
+			conf.update(cmdName, new String[] { "VALUE", "GUILD", "OPTIONGUILD" },
+					new String[] {value, gID + "", option + gID });
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
