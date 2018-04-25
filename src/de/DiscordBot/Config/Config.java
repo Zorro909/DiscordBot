@@ -93,7 +93,7 @@ public class Config {
 		try {
 			s = conf.getConnection().createStatement();
 			ResultSet rs = s.executeQuery("SELECT OPTIONGUILD from " + cmdName
-					+ " WHERE OPTIONGUILD REGEXP_LIKE(OPTIONGUILD, '" + regex + "');");
+					+ " WHERE OPTIONGUILD OPTIONGUILD REGEXP '" + regex + "';");
 			rs.beforeFirst();
 			while (rs.next()) {
 				String optionguild = rs.getString("OPTIONGUILD");
