@@ -93,7 +93,7 @@ public class Config {
 		try {
 			s = conf.getConnection().createStatement();
 			ResultSet rs = s.executeQuery("SELECT OPTIONGUILD from " + cmdName
-					+ " WHERE OPTIONGUILD OPTIONGUILD REGEXP '" + regex + "';");
+					+ " WHERE OPTIONGUILD REGEXP '" + regex + "';");
 			rs.beforeFirst();
 			while (rs.next()) {
 				String optionguild = rs.getString("OPTIONGUILD");
