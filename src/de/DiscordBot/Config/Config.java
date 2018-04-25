@@ -2,8 +2,12 @@ package de.DiscordBot.Config;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import de.DiscordBot.DiscordBot;
 import de.DiscordBot.Commands.DiscordCommand;
@@ -49,11 +53,62 @@ public class Config {
 		}
 	}
 
+	public HashMap<String, String> getValues(String... keys) {
+		HashMap<String, String> vals = new HashMap<String, String>();
+		String sql = "SELECT VALUE, OPTIONGUILD FROM " + cmdName + " WHERE GUILD = '" + gID + "' AND OPTIONGUILD IN (";
+		for (String s : keys) {
+			sql += "'" + s + gID + "',";
+		}
+		sql = sql.substring(0, sql.length() - 1);
+		sql += ");";
+		try {
+			Statement s = conf.getConnection().createStatement();
+			ResultSet rs = s.executeQuery(sql);
+			rs.beforeFirst();
+			int gIDLength = String.valueOf(gID).length();
+			while (rs.next()) {
+				String optionguild = rs.getString("OPTIONGUILD");
+				optionguild = optionguild.substring(0, optionguild.length() - gIDLength);
+				vals.put(optionguild, rs.getString("VALUE"));
+			}
+			rs.close();
+			s.close();
+			return vals;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return vals;
+	}
+
+	public ArrayList<String> getKeys(String regex) {
+		ArrayList<String> keys = new ArrayList<String>();
+		Statement s;
+		try {
+			s = conf.getConnection().createStatement();
+			ResultSet rs = s.executeQuery("SELECT OPTIONGUILD from " + cmdName
+					+ " WHERE OPTIONGUILD REGEXP_LIKE(OPTIONGUILD, '" + regex + "');");
+			rs.beforeFirst();
+			while (rs.next()) {
+				String optionguild = rs.getString("OPTIONGUILD");
+				optionguild = optionguild.substring(0, optionguild.length() - String.valueOf(gID).length());
+				keys.add(optionguild);
+			}
+			rs.close();
+			s.close();
+			return keys;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return keys;
+		}
+	}
+
 	public void setValue(String option, String value) {
 		option = option.toLowerCase();
 		try {
 			conf.update(cmdName, new String[] { "VALUE", "GUILD", "OPTIONGUILD" },
-					new String[] {value, gID + "", option + gID });
+					new String[] { value, gID + "", option + gID });
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -75,6 +130,13 @@ public class Config {
 		}
 	}
 
+	public Map<String, Boolean> getBooleanValues(String... keys) {
+		HashMap<String, String> vals = getValues(keys);
+		Map<String, Boolean> bool = vals.entrySet().stream()
+				.collect(Collectors.toMap((Map.Entry<String, String> entry) -> entry.getKey(), (entry) -> entry.getValue().equals("true") ? true : false));
+		return bool;
+	}
+
 	public String getValue(String option, String defaultValue) {
 		try {
 			return getValue(option);
@@ -89,6 +151,13 @@ public class Config {
 		} catch (Exception e) {
 			return defaultValue;
 		}
+	}
+	
+	public Map<String, Integer> getIntValues(String... keys) {
+		HashMap<String, String> vals = getValues(keys);
+		Map<String, Integer> ints = vals.entrySet().stream()
+				.collect(Collectors.toMap((Map.Entry<String, String> entry) -> entry.getKey(), (entry) -> Integer.valueOf(entry.getValue())));
+		return ints;
 	}
 
 	public void setIntValue(String string, int i) {
