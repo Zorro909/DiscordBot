@@ -57,7 +57,11 @@ public class Config {
 		HashMap<String, String> vals = new HashMap<String, String>();
 		String sql = "SELECT VALUE, OPTIONGUILD FROM " + cmdName + " WHERE GUILD = '" + gID + "' AND OPTIONGUILD IN (";
 		for (String s : keys) {
-			sql += "'" + s + gID + "',";
+			if (!cache.containsKey(s + gID)) {
+				sql += "'" + s + gID + "',";
+			} else {
+				vals.put(s, cache.get(s + gID).getObject());
+			}
 		}
 		sql = sql.substring(0, sql.length() - 1);
 		sql += ");";
@@ -68,6 +72,8 @@ public class Config {
 			int gIDLength = String.valueOf(gID).length();
 			while (rs.next()) {
 				String optionguild = rs.getString("OPTIONGUILD");
+				Cleanable<String> c = new Cleanable<String>(rs.getString("value"), 5000, 1000 * 60 * 5);
+				c.addToMap(optionguild, cache);
 				optionguild = optionguild.substring(0, optionguild.length() - gIDLength);
 				vals.put(optionguild, rs.getString("VALUE"));
 			}
@@ -133,7 +139,8 @@ public class Config {
 	public Map<String, Boolean> getBooleanValues(String... keys) {
 		HashMap<String, String> vals = getValues(keys);
 		Map<String, Boolean> bool = vals.entrySet().stream()
-				.collect(Collectors.toMap((Map.Entry<String, String> entry) -> entry.getKey(), (entry) -> entry.getValue().equals("true") ? true : false));
+				.collect(Collectors.toMap((Map.Entry<String, String> entry) -> entry.getKey(),
+						(entry) -> entry.getValue().equals("true") ? true : false));
 		return bool;
 	}
 
@@ -152,11 +159,11 @@ public class Config {
 			return defaultValue;
 		}
 	}
-	
+
 	public Map<String, Integer> getIntValues(String... keys) {
 		HashMap<String, String> vals = getValues(keys);
-		Map<String, Integer> ints = vals.entrySet().stream()
-				.collect(Collectors.toMap((Map.Entry<String, String> entry) -> entry.getKey(), (entry) -> Integer.valueOf(entry.getValue())));
+		Map<String, Integer> ints = vals.entrySet().stream().collect(Collectors.toMap(
+				(Map.Entry<String, String> entry) -> entry.getKey(), (entry) -> Integer.valueOf(entry.getValue())));
 		return ints;
 	}
 
