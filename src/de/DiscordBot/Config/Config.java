@@ -111,7 +111,6 @@ public class Config {
 	}
 
 	public void setValue(String option, String value) {
-		option = option.toLowerCase();
 		try {
 			conf.update(cmdName, new String[] { "VALUE", "GUILD", "OPTIONGUILD" },
 					new String[] { value, gID + "", option + gID });
