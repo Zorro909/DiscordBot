@@ -338,5 +338,15 @@ public class CommandExecutor implements Runnable {
 	public static void setChatLog(ChatLog cl) {
 		CommandExecutor.cl = cl;
 	}
+	
+	public static boolean isCommand(String text) {
+		if(text.startsWith("\\")) {
+			String command = text.split(" ", 2)[0].substring(1);
+			if(commands.containsKey(command.toLowerCase())) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 }
