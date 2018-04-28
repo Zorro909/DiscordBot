@@ -21,6 +21,7 @@ import de.DiscordBot.Game.DiscordGame;
 import javautils.mysql.DATA_TYPE;
 import javautils.mysql.MySQLConfiguration;
 import javautils.mysql.Table;
+import net.dean.jraw.models.LiveUpdate.Embed;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
@@ -304,6 +305,13 @@ public class CommandExecutor implements Runnable {
 							e.printStackTrace();
 							sendTypingChannels.remove(time);
 							return;
+						}
+						if(ret instanceof MessageBuilder) {
+							ret = ((MessageBuilder) ret).build();
+						}else if(ret instanceof EmbedBuilder) {
+							ret = ((EmbedBuilder) ret).build();
+						}else if(ret instanceof String) {
+							ret = new MessageBuilder().append(ret).build();
 						}
 						if (ret instanceof Integer) {
 							incoming.getChannel().sendMessage("Your Command generated an Errawr with the Code " + ret
