@@ -89,7 +89,7 @@ public class ChatLogInterface {
 			@Override
 			public HtmlDocument createModifiedHtmlDocument(HtmlDocument clone, HashMap<String, String> conf,
 					HashMap<String, String> vars) {
-				String url = conf.get("Request-URL");
+				String url = URLDecoder.decode(conf.get("Request-URL"));
 				String guild = url.split("/")[1];
 				String chan = url.split("/")[2];
 				int page = 1;
