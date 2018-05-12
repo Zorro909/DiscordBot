@@ -99,7 +99,9 @@ public class ChatLogInterface {
 				clone.setTitle(chan);
 				clone.setCustomTag("title", "Logs for Channel " + chan + " of " + guild);
 				TableTag tt = (TableTag) clone.getTag("table").get(0);
-				cl.getChannel(guild, chan).clm.stream().sequential().sorted((msg1, msg2) -> {
+				ChatLogChannel clc = cl.getChannel(guild, chan);
+				clc.load();
+				clc.clm.stream().sequential().sorted((msg1, msg2) -> {
 					if(msg1.time<msg2.time) {
 						return 1;
 					}

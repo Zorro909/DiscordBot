@@ -109,7 +109,7 @@ public class ChatLog {
 		} else {
 			for (File channel : new File(logFolder.getAbsolutePath() + "/" + guildName).listFiles()) {
 				if (channel.getName().endsWith(".channel")) {
-					ch.add(channel.getName().split(".channe")[0]);
+					ch.add(channel.getName().split(".channel")[0]);
 				}
 			}
 		}
