@@ -1,14 +1,16 @@
 package de.DiscordBot.ChatLog;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 
+import de.DiscordBot.DiscordBot;
 import net.dv8tion.jda.core.entities.Guild;
 
 public class ChatLog {
 
 	private HashMap<String, HashMap<String, ChatLogChannel>> guildChannels = new HashMap<>();
-	private File logFolder;
+	File logFolder;
 
 	public ChatLog(File logFolder) {
 		this.logFolder = logFolder;
@@ -28,6 +30,7 @@ public class ChatLog {
 				}
 			}
 		}
+		new ChatLogInterface(this, DiscordBot.getBot());
 	}
 
 	public ChatLogChannel getChannel(Guild guild, String name) {
@@ -70,6 +73,47 @@ public class ChatLog {
 			count += clc.clm.size();
 		}
 		return count;
+	}
+	
+	long countMessages(String guildName) {
+		long count = 0;
+		for (String s : listChannels(guildName)) {
+			ChatLogChannel clc = getChannel(guildName, s);
+			clc.load();
+			count += clc.clm.size();
+		}
+		return count;
+	}
+
+	ChatLogChannel getChannel(String guildName, String name) {
+		HashMap<String, ChatLogChannel> chan = new HashMap<String, ChatLogChannel>();
+		if (guildChannels.containsKey(guildName)) {
+			chan = guildChannels.get(guildName);
+		}
+		if (chan.containsKey(name)) {
+			return chan.get(name);
+		} else {
+			new File(logFolder.getAbsolutePath() + "/" + guildName).mkdirs();
+			ChatLogChannel clc = new ChatLogChannel(guildName, name,
+					new File(logFolder.getAbsolutePath() + "/" + guildName, name + ".channel"));
+			chan.put(name, clc);
+			guildChannels.put(guildName, chan);
+			return clc;
+		}
+	}
+
+	ArrayList<String> listChannels(String guildName) {
+		ArrayList<String> ch = new ArrayList<>();
+		if (!new File(logFolder.getAbsolutePath() + "/" + guildName).exists()) {
+			return ch;
+		} else {
+			for (File channel : new File(logFolder.getAbsolutePath() + "/" + guildName).listFiles()) {
+				if (channel.getName().endsWith(".channel")) {
+					ch.add(channel.getName().split(".channe")[0]);
+				}
+			}
+		}
+		return ch;
 	}
 
 }
