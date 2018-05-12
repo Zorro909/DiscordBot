@@ -18,6 +18,8 @@ import javautils.Html.Extended.Tags.LinkTag;
 import javautils.Html.Extended.Tags.ListTag;
 import javautils.Html.Extended.Tags.TableTag;
 import javautils.Html.Extended.Tags.TitleTag;
+import javautils.Parser.ParseObject;
+import javautils.RestAPI.Action;
 import javautils.RestAPI.HtmlAction;
 import javautils.RestAPI.RestAPI;
 import javautils.RestAPI.RestAPIActionSet;
@@ -130,6 +132,20 @@ public class ChatLogInterface {
 							messages + "");
 				}
 				return clone;
+			}
+		});
+		raas.addAction("*", new Action() {
+			
+			@Override
+			public boolean isRaw() {
+				
+				return false;
+			}
+			
+			@Override
+			public ParseObject executeRequest(HashMap<String, String> conf, HashMap<String, String> vars) {
+				System.out.println("Got false request for URL: " + conf.get("Request-URL"));
+				return new ParseObject("html");
 			}
 		});
 		RestAPI.startRestAPIServer(raas, TcpServerMode.NO_ENCRYPTION.setPort(7070));
