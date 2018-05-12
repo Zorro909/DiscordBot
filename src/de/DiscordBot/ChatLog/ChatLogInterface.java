@@ -90,11 +90,11 @@ public class ChatLogInterface {
 			public HtmlDocument createModifiedHtmlDocument(HtmlDocument clone, HashMap<String, String> conf,
 					HashMap<String, String> vars) {
 				String url = conf.get("Request-URL");
-				String guild = url.split("/")[0];
-				String chan = url.split("/")[1];
+				String guild = url.split("/")[1];
+				String chan = url.split("/")[2];
 				int page = 1;
 				try {
-					page = Integer.parseInt(url.split("/")[2]);
+					page = Integer.parseInt(url.split("/")[3]);
 				}catch(Exception e) {}
 				clone.setTitle(chan);
 				clone.setCustomTag("title", "Logs for Channel " + chan + " of " + guild);
@@ -104,8 +104,7 @@ public class ChatLogInterface {
 						return 1;
 					}
 					return -1;
-				}).limit(50).forEach((clm) -> {
-					System.out.println("DEBUG MSG: " + clm.content);;
+				}).skip((page-1)*50).limit(50).forEach((clm) -> {
 					tt.addRow(Instant.ofEpochMilli(clm.time).atZone(ZoneId.systemDefault()).toLocalDateTime().toString(), clm.user, (clm.content.isEmpty() ? "[IMAGE NOT LOGGED]" : clm.content));
 				});
 				return clone;
