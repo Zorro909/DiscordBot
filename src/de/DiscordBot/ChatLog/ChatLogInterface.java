@@ -84,7 +84,7 @@ public class ChatLogInterface {
 			}
 
 		});
-		raas.addAction("\\/.*\\/.*", new HtmlAction(listMessages) {
+		raas.addAction("/[^/]*/[^/]*", new HtmlAction(listMessages) {
 
 			@Override
 			public HtmlDocument createModifiedHtmlDocument(HtmlDocument clone, HashMap<String, String> conf,
@@ -111,7 +111,7 @@ public class ChatLogInterface {
 			}
 
 		});
-		raas.addAction("\\/.*", new HtmlAction(listChannels) {
+		raas.addAction("/[^/]*", new HtmlAction(listChannels) {
 
 			@Override
 			public HtmlDocument createModifiedHtmlDocument(HtmlDocument clone, HashMap<String, String> conf,
