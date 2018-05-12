@@ -3,8 +3,12 @@ package de.DiscordBot.ChatLog;
 import java.io.File;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.sql.Date;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javautils.Html.HtmlAttribute;
 import javautils.Html.HtmlDocument;
@@ -49,7 +53,16 @@ public class ChatLogInterface {
 		listChannels.addTag(channels.addAttribute("id", new HtmlAttribute("list")));
 
 		HtmlDocument listMessages = new HtmlDocument();
-
+		CustomHtmlTag title_2 = new CustomHtmlTag("h1", "title");
+		listMessages.addTag(title_2);
+		listMessages.registerCustomTag(title_2);
+		listMessages.addTag(new HtmlTag("br"));
+		TableTag msgs = new TableTag();
+		msgs.addColumn("Time");
+		msgs.addColumn("Author");
+		msgs.addColumn("Message");
+		listMessages.addTag(msgs.addAttribute("id", new HtmlAttribute("list")));
+		
 		raas.addAction("/", new HtmlAction(listServers) {
 
 			@Override
@@ -65,6 +78,33 @@ public class ChatLogInterface {
 								messages + "");
 					}
 				}
+				return clone;
+			}
+
+		});
+		raas.addAction("/*/*", new HtmlAction(listMessages) {
+
+			@Override
+			public HtmlDocument createModifiedHtmlDocument(HtmlDocument clone, HashMap<String, String> conf,
+					HashMap<String, String> vars) {
+				String url = conf.get("Request-URL");
+				String guild = url.split("/")[0];
+				String chan = url.split("/")[1];
+				int page = 1;
+				try {
+					page = Integer.parseInt(url.split("/")[2]);
+				}catch(Exception e) {}
+				clone.setTitle(chan);
+				clone.setCustomTag("title", "Logs for Channel " + chan + " of " + guild);
+				TableTag tt = (TableTag) clone.getTag("table").get(0);
+				cl.getChannel(guild, chan).clm.stream().sequential().sorted((msg1, msg2) -> {
+					if(msg1.time<msg2.time) {
+						return 1;
+					}
+					return -1;
+				}).skip((page-1)*50).limit(50).forEach((clm) -> {
+					tt.addRow(Instant.ofEpochMilli(clm.time).atZone(ZoneId.systemDefault()).toLocalDateTime().toString(), clm.user, (clm.content.isEmpty() ? "[IMAGE NOT LOGGED]" : clm.content));
+				});
 				return clone;
 			}
 
@@ -86,22 +126,11 @@ public class ChatLogInterface {
 					s.load();
 					long messages = s.clm.size();
 					s.clm.clear();
-					tt.addRow("<a href='" + url + "/" + URLEncoder.encode(sName) + "'>" + sName + "</a>", channels + "",
+					tt.addRow("<a href='" + url + "/" + URLEncoder.encode(sName) + "'>" + sName + "</a>",
 							messages + "");
 				}
 				return clone;
 			}
-		});
-		raas.addAction("/*/*", new HtmlAction(listMessages) {
-
-			@Override
-			public HtmlDocument createModifiedHtmlDocument(HtmlDocument clone, HashMap<String, String> conf,
-					HashMap<String, String> vars) {
-				String url = conf.get("Request-URL");
-				clone.addTag(new TitleTag("XD",3));
-				return clone;
-			}
-
 		});
 		RestAPI.startRestAPIServer(raas, TcpServerMode.NO_ENCRYPTION.setPort(7070));
 	}
