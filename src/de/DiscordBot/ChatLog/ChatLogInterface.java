@@ -77,7 +77,7 @@ public class ChatLogInterface {
 				String url = conf.get("Request-URL");
 				String guild = URLDecoder.decode(url.substring(1));
 				clone.setTitle(guild);
-				clone.setCustomAttribute("title", "Channels of " + guild);
+				clone.setCustomTag("title", "Channels of " + guild);
 				TableTag tt = (TableTag) clone.getTag("table").get(0);
 				for (String chan : cl.listChannels(guild)) {
 					ChatLogChannel s = cl.getChannel(guild, chan);
@@ -98,7 +98,7 @@ public class ChatLogInterface {
 			public HtmlDocument createModifiedHtmlDocument(HtmlDocument clone, HashMap<String, String> conf,
 					HashMap<String, String> vars) {
 				String url = conf.get("Request-URL");
-
+				clone.addTag(new TitleTag("XD",3));
 				return clone;
 			}
 
