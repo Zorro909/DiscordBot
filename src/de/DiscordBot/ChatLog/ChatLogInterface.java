@@ -39,7 +39,9 @@ public class ChatLogInterface {
 		listServers.setTitle("Server List");
 
 		HtmlDocument listChannels = new HtmlDocument();
-		listChannels.addTag(new CustomHtmlTag("h1", "title"));
+		CustomHtmlTag title = new CustomHtmlTag("h1", "title");
+		listChannels.addTag(title);
+		listChannels.registerCustomTag(title);
 		listChannels.addTag(new HtmlTag("br"));
 		TableTag channels = new TableTag();
 		channels.addColumn("Name");
@@ -67,17 +69,6 @@ public class ChatLogInterface {
 			}
 
 		});
-		raas.addAction("/*/*", new HtmlAction(listMessages) {
-
-			@Override
-			public HtmlDocument createModifiedHtmlDocument(HtmlDocument clone, HashMap<String, String> conf,
-					HashMap<String, String> vars) {
-				String url = conf.get("Request-URL");
-
-				return null;
-			}
-
-		});
 		raas.addAction("/*", new HtmlAction(listChannels) {
 
 			@Override
@@ -100,6 +91,17 @@ public class ChatLogInterface {
 				}
 				return clone;
 			}
+		});
+		raas.addAction("/*/*", new HtmlAction(listMessages) {
+
+			@Override
+			public HtmlDocument createModifiedHtmlDocument(HtmlDocument clone, HashMap<String, String> conf,
+					HashMap<String, String> vars) {
+				String url = conf.get("Request-URL");
+
+				return clone;
+			}
+
 		});
 		RestAPI.startRestAPIServer(raas, TcpServerMode.NO_ENCRYPTION.setPort(7070));
 	}
