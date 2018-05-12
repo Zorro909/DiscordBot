@@ -107,7 +107,7 @@ public class ChatLogInterface {
 					}
 					return -1;
 				}).skip((page-1)*50).limit(50).forEach((clm) -> {
-					tt.addRow(Instant.ofEpochMilli(clm.time).atZone(ZoneId.systemDefault()).toLocalDateTime().toString(), clm.user, (clm.content.isEmpty() ? "[IMAGE NOT LOGGED]" : clm.content));
+					tt.addRow(Instant.ofEpochSecond(clm.time).atZone(ZoneId.systemDefault()).toLocalDateTime().toString(), clm.user, (clm.content.isEmpty() ? "[IMAGE NOT LOGGED]" : clm.content));
 				});
 				return clone;
 			}
