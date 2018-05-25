@@ -63,8 +63,11 @@ public class CommandExecutor implements Runnable {
 				@Override
 				public void run() {
 					while (true) {
-						for (MessageChannel c : sendTypingChannels.values()) {
-							c.sendTyping().submit();
+						for (Long l : sendTypingChannels.keySet()) {
+							sendTypingChannels.get(l).sendTyping().submit();
+							if(l+2*60*1000<System.currentTimeMillis()) {
+								sendTypingChannels.remove(l);
+							}
 						}
 						try {
 							Thread.sleep(2500L);
@@ -293,14 +296,19 @@ public class CommandExecutor implements Runnable {
 				} else {
 					if (commands.containsKey(command.toLowerCase())) {
 						long time = System.currentTimeMillis();
+						try {
 						sendTypingChannels.put(time, incoming.getChannel());
 						DiscordCommand dc = commands.get(command.toLowerCase());
 						Object ret = null;
 						try {
 							ret = dc.execute(command, args, incoming);
+							if(ret==null) {
+								sendTypingChannels.remove(time);
+								return;
+							}
 						} catch (Exception e) {
 							incoming.getChannel().sendMessage(
-									"Your Command generated an Errawr, please contact the Developer! @Zorro909#1972")
+									"Your Command generated an Error of the type '" + e.getClass().getSimpleName() + "', please contact the Developer! @Zorro909#1972")
 									.submit();
 							e.printStackTrace();
 							sendTypingChannels.remove(time);
@@ -314,7 +322,7 @@ public class CommandExecutor implements Runnable {
 							ret = new MessageBuilder().append(ret).build();
 						}
 						if (ret instanceof Integer) {
-							incoming.getChannel().sendMessage("Your Command generated an Errawr with the Code " + ret
+							incoming.getChannel().sendMessage("Your Command generated an Error with the Code " + ret
 									+ ", please contact the Developer! @Zorro909#1972");
 						} else if (ret instanceof Message) {
 							incoming.getChannel().sendMessage(((Message) (ret))).submit();
@@ -322,6 +330,13 @@ public class CommandExecutor implements Runnable {
 							incoming.getChannel().sendMessage((MessageEmbed) ret).submit();
 						}
 						sendTypingChannels.remove(time);
+						}catch(Exception e) {
+							sendTypingChannels.remove(time);
+							incoming.getChannel().sendMessage(
+									"Your Command generated an Error of the type '" + e.getClass().getSimpleName() + "', please contact the Developer! @Zorro909#1972")
+									.submit();
+							e.printStackTrace();
+						}
 					}
 				}
 			}
