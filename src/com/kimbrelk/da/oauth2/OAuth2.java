@@ -1,5 +1,30 @@
 package com.kimbrelk.da.oauth2;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.security.InvalidParameterException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import javax.net.ssl.HttpsURLConnection;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.kimbrelk.da.oauth2.response.RespBrowseMorelikethisPreview;
 import com.kimbrelk.da.oauth2.response.RespBrowseTagsSearch;
 import com.kimbrelk.da.oauth2.response.RespCategory;
@@ -24,7 +49,6 @@ import com.kimbrelk.da.oauth2.response.RespFeedNotifications;
 import com.kimbrelk.da.oauth2.response.RespFriends;
 import com.kimbrelk.da.oauth2.response.RespGallery;
 import com.kimbrelk.da.oauth2.response.RespGalleryFolders;
-import com.kimbrelk.da.oauth2.response.RespStashStackContents;
 import com.kimbrelk.da.oauth2.response.RespStashDelete;
 import com.kimbrelk.da.oauth2.response.RespStashDelta;
 import com.kimbrelk.da.oauth2.response.RespStashMetadata;
@@ -32,6 +56,7 @@ import com.kimbrelk.da.oauth2.response.RespStashMove;
 import com.kimbrelk.da.oauth2.response.RespStashPublish;
 import com.kimbrelk.da.oauth2.response.RespStashPublishUserdata;
 import com.kimbrelk.da.oauth2.response.RespStashSpace;
+import com.kimbrelk.da.oauth2.response.RespStashStackContents;
 import com.kimbrelk.da.oauth2.response.RespStashSubmit;
 import com.kimbrelk.da.oauth2.response.RespText;
 import com.kimbrelk.da.oauth2.response.RespToken;
@@ -41,8 +66,8 @@ import com.kimbrelk.da.oauth2.response.RespUserFriends;
 import com.kimbrelk.da.oauth2.response.RespUserFriendsWatching;
 import com.kimbrelk.da.oauth2.response.RespUserProfile;
 import com.kimbrelk.da.oauth2.response.RespUserStatus;
-import com.kimbrelk.da.oauth2.response.RespUserStatuses;
 import com.kimbrelk.da.oauth2.response.RespUserStatusPost;
+import com.kimbrelk.da.oauth2.response.RespUserStatuses;
 import com.kimbrelk.da.oauth2.response.RespUserWatchers;
 import com.kimbrelk.da.oauth2.response.RespUsers;
 import com.kimbrelk.da.oauth2.response.Response;
@@ -52,28 +77,6 @@ import com.kimbrelk.da.oauth2.struct.License;
 import com.kimbrelk.da.oauth2.struct.Maturity;
 import com.kimbrelk.da.oauth2.struct.Share;
 import com.kimbrelk.da.oauth2.struct.Watch;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.security.InvalidParameterException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import javax.net.ssl.HttpsURLConnection;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 @SuppressWarnings("static-access")
 public final class OAuth2 {

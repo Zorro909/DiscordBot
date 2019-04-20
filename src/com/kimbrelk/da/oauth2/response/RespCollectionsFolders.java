@@ -1,9 +1,10 @@
 package com.kimbrelk.da.oauth2.response;
 
-import com.kimbrelk.da.oauth2.struct.CollectionFolder;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.kimbrelk.da.oauth2.struct.CollectionFolder;
 
 public final class RespCollectionsFolders extends RespPaginationOffset<CollectionFolder> {
 	public RespCollectionsFolders(JSONObject json) throws JSONException {

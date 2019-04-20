@@ -1,9 +1,10 @@
 package com.kimbrelk.da.oauth2.response;
 
-import com.kimbrelk.da.oauth2.struct.Watcher;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.kimbrelk.da.oauth2.struct.Watcher;
 
 public class RespUserWatchers extends RespPaginationOffset<Watcher> {
 	public RespUserWatchers(JSONObject json) throws JSONException {

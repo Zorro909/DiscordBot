@@ -1,9 +1,10 @@
 package com.kimbrelk.da.oauth2.response;
 
-import com.kimbrelk.da.oauth2.struct.StashDelta;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.kimbrelk.da.oauth2.struct.StashDelta;
 
 public final class RespStashDelta extends RespPaginationDelta<StashDelta> {
 	public RespStashDelta(JSONObject json) throws JSONException {

@@ -11,7 +11,6 @@ import java.util.Base64;
 import java.util.Comparator;
 import java.util.LinkedList;
 
-
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 

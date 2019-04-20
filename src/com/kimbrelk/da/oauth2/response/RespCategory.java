@@ -1,9 +1,10 @@
 package com.kimbrelk.da.oauth2.response;
 
-import com.kimbrelk.da.oauth2.struct.Category;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.kimbrelk.da.oauth2.struct.Category;
 
 public final class RespCategory extends Response {
 	private final Category[] mCategories;

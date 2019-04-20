@@ -1,11 +1,12 @@
 package com.kimbrelk.da.oauth2.response;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.kimbrelk.da.oauth2.struct.Comment;
 import com.kimbrelk.da.oauth2.struct.Deviation;
 import com.kimbrelk.da.oauth2.struct.Status;
 import com.kimbrelk.da.oauth2.struct.User;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class RespCommentsSiblings extends RespComments {
 	private Context mContext;

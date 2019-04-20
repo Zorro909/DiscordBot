@@ -1,0 +1,2 @@
+./buildDockerImage.sh
+./deployDockerImage.sh

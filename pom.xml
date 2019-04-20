@@ -30,8 +30,29 @@
 			<name>jcenter-bintray</name>
 			<url>http://jcenter.bintray.com</url>
 		</repository>
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
+		</repository>
 	</repositories>
 	<dependencies>
+		<dependency>
+			<groupId>com.sedmelluq</groupId>
+			<artifactId>lavaplayer</artifactId>
+			<version>1.2.58</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.Frederikam</groupId>
+			<artifactId>Lavalink</artifactId>
+			<version>1bfb2276dd</version>
+			<exclusions>
+				<exclusion>
+					<!-- Exclude the server module -->
+					<groupId>com.github.Frederikam.Lavalink</groupId>
+					<artifactId>Lavalink-Server</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 		<dependency>
 			<groupId>net.objecthunter</groupId>
 			<artifactId>exp4j</artifactId>
@@ -57,6 +78,11 @@
 			<groupId>com.sedmelluq</groupId>
 			<artifactId>jda-nas</artifactId>
 			<version>1.0.5</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.cloud</groupId>
+			<artifactId>google-cloud-translate</artifactId>
+			<version>1.66.0</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/commons-cli/commons-cli -->
 		<dependency>
@@ -104,17 +130,23 @@
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.shell</groupId>
-			<artifactId>spring-shell-starter</artifactId>
-			<version>2.0.1.BUILD-SNAPSHOT</version>
-		</dependency>
 	</dependencies>
 	<build>
+		<sourceDirectory>src/</sourceDirectory>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>2.1.3.RELEASE</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>11</source>
+					<target>11</target>
+
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

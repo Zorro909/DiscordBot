@@ -1,0 +1,27 @@
+version: "3"
+services:
+  frontend:
+    build: .
+    image: zorro909/discordbot
+    volumes:
+     - ./chatLogs:/bot/chatLogs
+    networks:
+     - my-app-bridge
+  mysql:
+    image: "mariadb"
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+      MYSQL_DATABASE: "DISCORD_BOT"
+    networks:
+      - my-app-bridge
+    volumes:
+      - ./mysqlData:/var/lib/mysql
+  lavalink:
+    build: lavalink
+    image: "zorro909/lavalink-setup"
+    networks:
+      - my-app-bridge
+    ports: ["13452"]
+networks:
+  my-app-bridge:
+    driver: bridge

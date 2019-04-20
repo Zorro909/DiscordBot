@@ -1,179 +1,148 @@
 package de.DiscordBot;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
-import java.util.Properties;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.IntStream;
 
-import javax.security.auth.login.LoginException;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
-
-import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
+import org.springframework.stereotype.Component;
 
 import de.DiscordBot.ChatLog.ChatLogChannel;
 import de.DiscordBot.Commands.DiscordService;
+import de.DiscordBot.Config.ConfigPropertyRepository;
 import lombok.Getter;
 import lombok.Setter;
-import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.ChannelType;
-import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.core.events.message.guild.react.GuildMessageReactionRemoveEvent;
-import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
 @SpringBootApplication
 @EnableScheduling
+@Component
+@Configuration
 public class DiscordBot extends ListenerAdapter {
 
-    @Setter
-    /** The Discord Bot Instance to be used to send messages */
-    private JDA discordBot;
+	@Setter
+	/** The Discord Bot Instance to be used to send messages */
+	private JDA discordBot;
 
-    @Setter
-    @Getter
-    private int threadCount = 5;
+	@Setter
+	@Getter
+	private int threadCount = 5;
 
-    @Getter
-    private static DiscordBot instance;
+	@Getter
+	private static DiscordBot instance;
 
-    /** The ExecutorService used to spawn threads to respond to commands! */
-    @Getter
-    private static ExecutorService execService;
+	@Autowired
+	@Getter
+	public ConfigPropertyRepository configPropertyRepository;
+	
+	public DiscordBot() {
+		instance = this;
+	}
+	
+	/** The ExecutorService used to spawn threads to respond to commands! */
+	@Getter
+	private static ExecutorService execService;
 
-    public static void main(String[] args) throws GeneralSecurityException, IOException {
-        File configFile = new File("discordBot.config");
+	public static void main(String[] args) throws GeneralSecurityException, IOException {
+		execService = Executors.newFixedThreadPool(5);
+		new SpringApplicationBuilder(DiscordBot.class).web(WebApplicationType.NONE).build()
+				.run(args);
+	}
 
-        Properties configProperties = new Properties();
-        configProperties.load(new FileInputStream(configFile));
+	static ArrayList<DiscordService> services = new ArrayList<DiscordService>();
 
-        String discordToken = configProperties.getProperty("discordToken");
-        JDA bot = null;
+	public static void startService(DiscordService service) {
+		services.add(service);
+		new Thread(service).start();
+	}
 
-        int threadCount = 5;
-        String t = configProperties.getProperty("threadCount", "5");
-        try {
-            threadCount = Integer.valueOf(t);
-            if (threadCount < 1) {
-                throw new Exception("");
-            }
-        } catch (Exception e) {
-            System.err.println("The Thread Count needs to be a positive Integer bigger than 0!");
-        }
+	public static void stopServices() {
+		for (DiscordService ds : services) {
+			ds.shutdown();
+		}
+		services.clear();
+	}
 
-        try {
-            bot = new JDABuilder(AccountType.BOT).setToken(discordToken).setAudioEnabled(true)
-                    .setAudioSendFactory(new NativeAudioSendFactory()).buildBlocking();
-        } catch (LoginException | IllegalArgumentException | InterruptedException | RateLimitedException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
+	@Bean
+	public static JDA discordJDABot() {
+		if (instance == null) {
+			return null;
+		}
+		return instance.discordBot;
+	}
 
-        instance = new DiscordBot();
-        instance.threadCount = threadCount;
-        instance.discordBot = bot;
+	@Override
+	public void onMessageReceived(MessageReceivedEvent event) {
+		// Don't do anything if you're the original Author
+		if (event.getAuthor() == event.getJDA().getSelfUser()) {
+			return;
+		}
+		if (event.getChannelType() == ChannelType.TEXT) {
+			ChatLogChannel clc = CommandExecutor.getChatLog().getChannel(event.getGuild(),
+					event.getChannel().getName());
+			clc.addChatMessage(event.getAuthor(), event.getMessage());
+			System.out.println("[" + event.getTextChannel().getName() + "] " + event.getAuthor().getName() + ": "
+					+ event.getMessage().getContent());
 
-        bot.addEventListener(instance);
+			if (event.getMessage().getContent().toLowerCase().contains("alia")) {
+				execService.execute(new NLPCommand(event));
+				return;
+			}
+		}
 
-        // Set the current Game of the Bot
-        bot.getPresence().setGame(Game.of(configProperties.getProperty("gameDisplay", "RandomRule34")));
+		if (event.getMessage().getContent().startsWith("\\")) {
+			execService.execute(new CommandExecutor(event));
+		}
+	}
 
-        execService = Executors.newFixedThreadPool(5);
+	public static void registerEmoteChangeListener(Message m, ListenerAdapter la) {
+		registerEmoteChangeListener(m, la, 60000);
+	}
 
-        new SpringApplicationBuilder(DiscordBot.class).web(WebApplicationType.NONE).build().run(args);
-    }
+	public static void registerEmoteChangeListener(Message m, ListenerAdapter la, long time) {
+		registeredListeners.put(m.getId(), la, time);
+	}
 
-    static ArrayList<DiscordService> services = new ArrayList<DiscordService>();
+	static ExpiringMap<String, ListenerAdapter> registeredListeners = new ExpiringMap<>();
 
-    public static void startService(DiscordService service) {
-        services.add(service);
-        new Thread(service).start();
-    }
+	@Override
+	public void onGuildMessageReactionAdd(GuildMessageReactionAddEvent gmrae) {
+		if (registeredListeners.containsKey(gmrae.getMessageId())) {
+			ListenerAdapter la = registeredListeners.get(gmrae.getMessageId());
+			if (la == null) {
+				registeredListeners.remove(gmrae.getMessageId());
+			} else {
+				la.onGuildMessageReactionAdd(gmrae);
+			}
+		}
+	}
 
-    public static void stopServices() {
-        for (DiscordService ds : services) {
-            ds.shutdown();
-        }
-        services.clear();
-    }
-
-    @Bean
-    public static JDA discordJDABot() {
-        if (instance == null) {
-            return null;
-        }
-        return instance.discordBot;
-    }
-
-    @Override
-    public void onMessageReceived(MessageReceivedEvent event) {
-        // Don't do anything if you're the original Author
-        if (event.getAuthor() == event.getJDA().getSelfUser()) {
-            return;
-        }
-        if (event.getChannelType() == ChannelType.TEXT) {
-            ChatLogChannel clc = CommandExecutor.getChatLog().getChannel(event.getGuild(),
-                    event.getChannel().getName());
-            clc.addChatMessage(event.getAuthor(), event.getMessage());
-            System.out.println("[" + event.getTextChannel().getName() + "] " + event.getAuthor().getName() + ": "
-                    + event.getMessage().getContent());
-
-            if (event.getMessage().getContent().toLowerCase().contains("alia")) {
-                execService.execute(new NLPCommand(event));
-                return;
-            }
-        }
-
-        if (event.getMessage().getContent().startsWith("\\")) {
-            execService.execute(new CommandExecutor(event));
-        }
-    }
-
-    public static void registerEmoteChangeListener(Message m, ListenerAdapter la) {
-        registerEmoteChangeListener(m, la, 60000);
-    }
-
-    public static void registerEmoteChangeListener(Message m, ListenerAdapter la, long time) {
-        registeredListeners.put(m.getId(), la, time);
-    }
-
-    static ExpiringMap<String, ListenerAdapter> registeredListeners = new ExpiringMap<>();
-
-    @Override
-    public void onGuildMessageReactionAdd(GuildMessageReactionAddEvent gmrae) {
-        if (registeredListeners.containsKey(gmrae.getMessageId())) {
-            ListenerAdapter la = registeredListeners.get(gmrae.getMessageId());
-            if (la == null) {
-                registeredListeners.remove(gmrae.getMessageId());
-            } else {
-                la.onGuildMessageReactionAdd(gmrae);
-            }
-        }
-    }
-
-    @Override
-    public void onGuildMessageReactionRemove(GuildMessageReactionRemoveEvent gmrre) {
-        if (registeredListeners.containsKey(gmrre.getMessageId())) {
-            ListenerAdapter la = registeredListeners.get(gmrre.getMessageId());
-            if (la == null) {
-                registeredListeners.remove(gmrre.getMessageId());
-            } else {
-                la.onGuildMessageReactionRemove(gmrre);
-            }
-        }
-    }
+	@Override
+	public void onGuildMessageReactionRemove(GuildMessageReactionRemoveEvent gmrre) {
+		if (registeredListeners.containsKey(gmrre.getMessageId())) {
+			ListenerAdapter la = registeredListeners.get(gmrre.getMessageId());
+			if (la == null) {
+				registeredListeners.remove(gmrre.getMessageId());
+			} else {
+				la.onGuildMessageReactionRemove(gmrre);
+			}
+		}
+	}
 
 }

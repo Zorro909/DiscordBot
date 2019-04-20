@@ -1,9 +1,10 @@
 package com.kimbrelk.da.oauth2.response;
 
-import com.kimbrelk.da.oauth2.struct.Friend;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.kimbrelk.da.oauth2.struct.Friend;
 
 public final class RespUserFriends extends RespPaginationOffset<Friend> {
 	public RespUserFriends(JSONObject json) throws JSONException {

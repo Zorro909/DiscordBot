@@ -1,9 +1,10 @@
 package com.kimbrelk.da.oauth2.response;
 
-import com.kimbrelk.da.oauth2.struct.Feed;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.kimbrelk.da.oauth2.struct.Feed;
 
 public final class RespFeed extends RespPaginationCursor<Feed> {
 	public RespFeed(JSONObject json) throws JSONException {

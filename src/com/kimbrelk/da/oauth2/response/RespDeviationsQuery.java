@@ -1,9 +1,10 @@
 package com.kimbrelk.da.oauth2.response;
 
-import com.kimbrelk.da.oauth2.struct.Deviation;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.kimbrelk.da.oauth2.struct.Deviation;
 
 public class RespDeviationsQuery extends RespPaginationOffset<Deviation> {
 	public RespDeviationsQuery(JSONObject json) throws JSONException {

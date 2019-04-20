@@ -1,9 +1,10 @@
 package com.kimbrelk.da.oauth2.response;
 
-import com.kimbrelk.da.oauth2.struct.Status;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.kimbrelk.da.oauth2.struct.Status;
 
 public class RespUserStatuses extends RespPaginationOffset<Status> {
 	public RespUserStatuses(JSONObject json) throws JSONException {

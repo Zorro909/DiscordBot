@@ -1,12 +1,13 @@
 package com.kimbrelk.da.oauth2.response;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.kimbrelk.da.oauth2.struct.Deviation;
 import com.kimbrelk.da.oauth2.struct.SimpleFolder;
 import com.kimbrelk.da.oauth2.struct.Status;
 import com.kimbrelk.da.oauth2.struct.User;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public final class RespUserProfile extends Response {
 	private String mArtistLevel;

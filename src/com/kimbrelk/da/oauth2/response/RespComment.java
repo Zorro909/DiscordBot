@@ -1,8 +1,9 @@
 package com.kimbrelk.da.oauth2.response;
 
-import com.kimbrelk.da.oauth2.struct.Comment;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.kimbrelk.da.oauth2.struct.Comment;
 
 public class RespComment extends Response {
 	private Comment mResult;

@@ -1,10 +1,12 @@
 package com.kimbrelk.da.oauth2.struct;
 
-import com.kimbrelk.da.util.Util;
 import java.util.Date;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.kimbrelk.da.util.Util;
 
 public final class FeedNotification {
 	public enum Type {

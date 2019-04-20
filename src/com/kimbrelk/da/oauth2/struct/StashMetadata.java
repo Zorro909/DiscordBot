@@ -1,6 +1,7 @@
 package com.kimbrelk.da.oauth2.struct;
 
 import java.util.Date;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

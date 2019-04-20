@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.google.common.collect.Lists;
 
 import de.DiscordBot.Commands.DiscordCommand;
@@ -15,14 +13,14 @@ import net.dv8tion.jda.core.entities.Guild;
 
 public class Config {
 
-    @Autowired
     private ConfigPropertyRepository configPropertyRepository;
 
     private String cmdName = "";
     private Long gID;
 
-    public Config(String cmdName, Guild g, DiscordCommand d) {
-        this.cmdName = cmdName;
+    public Config(String cmdName, Guild g, DiscordCommand d, ConfigPropertyRepository cpr) {
+    	configPropertyRepository = cpr;
+    	this.cmdName = cmdName;
         if (g != null) {
             gID = g.getIdLong();
         } else {
@@ -60,7 +58,8 @@ public class Config {
      */
 
     public void setValue(String option, String value) {
-        ConfigProperty cp = configPropertyRepository.findById(option + cmdName + gID)
+        System.out.println("Repo ist null ? " + (configPropertyRepository == null));
+    	ConfigProperty cp = configPropertyRepository.findById(option + cmdName + gID)
                 .orElse(new ConfigProperty(option + cmdName + gID, value));
         cp.setValue(value);
         configPropertyRepository.save(cp);

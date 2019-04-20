@@ -1,8 +1,9 @@
 package com.kimbrelk.da.oauth2.response;
 
-import com.kimbrelk.da.oauth2.struct.Status;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.kimbrelk.da.oauth2.struct.Status;
 
 public class RespUserStatus extends Response {
 	private Status mResult;

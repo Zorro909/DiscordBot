@@ -1,10 +1,11 @@
 package com.kimbrelk.da.oauth2.response;
 
-import com.kimbrelk.da.oauth2.struct.Deviation;
-import com.kimbrelk.da.oauth2.struct.User;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.kimbrelk.da.oauth2.struct.Deviation;
+import com.kimbrelk.da.oauth2.struct.User;
 
 public final class RespBrowseMorelikethisPreview extends Response {
 	private User mAuthor;
