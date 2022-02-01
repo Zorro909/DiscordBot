@@ -11,6 +11,10 @@
 		<version>2.2.0.BUILD-SNAPSHOT</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
+	<properties>
+  		<sonar.organization>zorro909</sonar.organization>
+  		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+	</properties>
 	<repositories>
 		<repository>
 			<id>spring-snapshots</id>
